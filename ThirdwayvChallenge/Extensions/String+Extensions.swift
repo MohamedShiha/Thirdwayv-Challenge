@@ -8,7 +8,7 @@
 import Foundation
 
 extension String {
-	func suggestedContaimerSize(in size: CGSize) -> CGSize {
+	func containerSize(in size: CGSize) -> CGSize {
 		let constraintRect = CGSize(width: size.width, height: size.height)
 		let boundingBox = self.boundingRect(with: constraintRect,
 											options: .usesLineFragmentOrigin,
