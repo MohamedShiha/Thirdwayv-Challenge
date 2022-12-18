@@ -16,8 +16,11 @@ final class MainCoordinator: Coordinator {
 	}
 	
 	func start() {
-		let productsListVC = ProductsListVC()
-		productsListVC.coordinator = self
+		let productsListVC = ProductsCollectionVC(viewModel: ProductListViewModel())
 		navigationController.setViewControllers([productsListVC], animated: true)
+	}
+	
+	func showProductDetails(_ product: Product) {
+		
 	}
 }
