@@ -7,15 +7,24 @@
 
 import UIKit
 
-class ProductsCollectionVC: UICollectionViewController, TemplateViewController {
+class ProductsCollectionVC: ViewController {
 
-	weak var coordinator: MainCoordinator?
+	// MARK: Variables
+	
+//	weak var coordinator: MainCoordinator?
+	var coordinator: MainCoordinator?
 	let viewModel: ProductListViewModel
 	var products = [Product]()
 	
+	// MARK: Views
+	
+	private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
+	
+	// MARK: Initializers
+	
 	init(viewModel: ProductListViewModel) {
 		self.viewModel = viewModel
-		super.init(collectionViewLayout: UICollectionViewLayout())
+		super.init(nibName: nil, bundle: nil)
 	}
 	
 	required init?(coder: NSCoder) {
@@ -23,15 +32,25 @@ class ProductsCollectionVC: UICollectionViewController, TemplateViewController {
 		super.init(coder: coder)
 	}
 	
+	// MARK: Lifecycle
+	
     override func viewDidLoad() {
         super.viewDidLoad()
-
 		setupViews()
 		layoutViews()
+		fetchData()
     }
+	
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		collectionView.collectionViewLayout.invalidateLayout()
+	}
+	
+	// MARK: Setup
 	
 	func setupViews() {
 		setupCollectionView()
+		view.addSubview(collectionView)
 	}
 	
 	private func setupCollectionView() {
@@ -43,14 +62,25 @@ class ProductsCollectionVC: UICollectionViewController, TemplateViewController {
 		collectionView.setCollectionViewLayout(layout, animated: true)
 		collectionView.dataSource = self
 		collectionView.delegate = self
+		collectionView.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
-	func layoutViews() { }
+	func layoutViews() {
+		NSLayoutConstraint.activate([
+			collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+			collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+		])
+	}
 	
 	func fetchData() {
 		Task {
 			do {
 				self.products = try await viewModel.fetchProducts()
+				DispatchQueue.main.async {
+					self.collectionView.reloadData()
+				}
 			} catch let error as NetworkError {
 				print(error.desciption)
 			}
@@ -60,17 +90,17 @@ class ProductsCollectionVC: UICollectionViewController, TemplateViewController {
 
 // MARK: UICollectionViewDataSource
 
-extension ProductsCollectionVC {
+extension ProductsCollectionVC: UICollectionViewDataSource {
 	
-	override func numberOfSections(in collectionView: UICollectionView) -> Int {
+	func numberOfSections(in collectionView: UICollectionView) -> Int {
 		return 1
 	}
 	
-	override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		return products.count
 	}
 	
-	override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductItemCell.reuseId, for: indexPath) as? ProductItemCell else {
 			return UICollectionViewCell()
 		}
@@ -81,9 +111,9 @@ extension ProductsCollectionVC {
 
 // MARK: UICollectionViewDelegate
 
-extension ProductsCollectionVC {
-	override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		coordinator?.showProductDetails(products[indexPath.row])
+extension ProductsCollectionVC: UICollectionViewDelegate {
+	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+		self.coordinator?.showProductDetails(products[indexPath.row])
 	}
 }
 
@@ -96,11 +126,11 @@ extension ProductsCollectionVC: UICollectionViewDelegateFlowLayout {
 						sizeForItemAt indexPath: IndexPath) -> CGSize {
 		let widthPerItem = (collectionView.frame.width / 2) - 1
 		let product = products[indexPath.row]
-		let height = calculateHeight(for: product, in: widthPerItem)
+		let height = calculateCellHeight(for: product, in: widthPerItem)
 		return CGSize(width: widthPerItem - 8, height: height)
 	}
 	
-	func calculateHeight(for product: Product, in cellWidth: CGFloat) -> CGFloat {
+	func calculateCellHeight(for product: Product, in cellWidth: CGFloat) -> CGFloat {
 		let imageHeight = CGFloat(product.image.height)
 		let containerSize = product.productDescription.containerSize(in: CGSize(width: cellWidth,
 																				height: .greatestFiniteMagnitude))

@@ -15,7 +15,7 @@ class ProductItemCell: UICollectionViewCell {
 	
 	// MARK: Views
 	
-	private let productImageView: UIImageView = UIImageView(image: nil)
+	let productImageView: UIImageView = UIImageView(image: nil)
 	private let verticalStack: UIStackView = {
 		let vStack = UIStackView()
 		vStack.axis = .vertical
@@ -86,8 +86,7 @@ class ProductItemCell: UICollectionViewCell {
 			priceLabel.heightAnchor.constraint(equalToConstant: 44),
 			
 			descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-			descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-			descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+			descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8)
 		])
 	}
 	
@@ -97,5 +96,45 @@ class ProductItemCell: UICollectionViewCell {
 											 height: product.image.height)
 		priceLabel.text = "\(product.price)"
 		descriptionLabel.text = product.productDescription
+	}
+}
+
+extension ProductItemCell {
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		super.touchesBegan(touches, with: event)
+		animate(isHighlighted: true)
+	}
+	
+	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		super.touchesEnded(touches, with: event)
+		animate(isHighlighted: false)
+	}
+	
+	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+		super.touchesCancelled(touches, with: event)
+		animate(isHighlighted: false)
+	}
+	
+	private func animate(isHighlighted: Bool, completion: ((Bool) -> Void)? = nil) {
+		let animationOptions: UIView.AnimationOptions = [.allowUserInteraction]
+		if isHighlighted {
+			UIView.animate(
+				withDuration: 0.3,
+				delay: 0,
+				usingSpringWithDamping: 1,
+				initialSpringVelocity: 0,
+				options: animationOptions, animations: {
+					self.transform = .init(scaleX: 0.95, y: 0.95)
+				}, completion: completion)
+		} else {
+			UIView.animate(
+				withDuration: 0.3,
+				delay: 0,
+				usingSpringWithDamping: 1,
+				initialSpringVelocity: 0,
+				options: animationOptions, animations: {
+					self.transform = .identity
+				}, completion: completion)
+		}
 	}
 }
