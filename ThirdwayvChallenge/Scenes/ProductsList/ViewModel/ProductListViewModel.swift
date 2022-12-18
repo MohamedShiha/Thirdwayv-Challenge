@@ -9,4 +9,13 @@ import Foundation
 
 final class ProductListViewModel {
 	
+	let networkEngine: NetworkEngine
+	
+	init() {
+		networkEngine = NetworkEngine()
+	}
+	
+	func fetchProducts() async throws -> [Product] {
+		return try await networkEngine.get(endpoint: ProductsListService.endpoint.request)
+	}
 }
