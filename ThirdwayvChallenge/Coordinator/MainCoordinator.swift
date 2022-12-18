@@ -17,10 +17,13 @@ final class MainCoordinator: Coordinator {
 	
 	func start() {
 		let productsListVC = ProductsCollectionVC(viewModel: ProductListViewModel())
+		productsListVC.coordinator = self
 		navigationController.setViewControllers([productsListVC], animated: true)
 	}
 	
 	func showProductDetails(_ product: Product) {
-		
+		let productDetailsVC = ProductDetailsVC(product: product)
+		productDetailsVC.coordinator = self
+		navigationController.present(productDetailsVC, animated: true)
 	}
 }
