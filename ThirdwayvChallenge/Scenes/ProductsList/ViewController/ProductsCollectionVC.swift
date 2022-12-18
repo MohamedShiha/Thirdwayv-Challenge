@@ -11,7 +11,8 @@ class ProductsCollectionVC: ViewController {
 
 	// MARK: Variables
 	
-	weak var coordinator: MainCoordinator?
+//	weak var coordinator: MainCoordinator?
+	var coordinator: MainCoordinator?
 	let viewModel: ProductListViewModel
 	var products = [Product]()
 	
@@ -112,7 +113,7 @@ extension ProductsCollectionVC: UICollectionViewDataSource {
 
 extension ProductsCollectionVC: UICollectionViewDelegate {
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		coordinator?.showProductDetails(products[indexPath.row])
+		self.coordinator?.showProductDetails(products[indexPath.row])
 	}
 }
 
@@ -125,11 +126,11 @@ extension ProductsCollectionVC: UICollectionViewDelegateFlowLayout {
 						sizeForItemAt indexPath: IndexPath) -> CGSize {
 		let widthPerItem = (collectionView.frame.width / 2) - 1
 		let product = products[indexPath.row]
-		let height = calculateHeight(for: product, in: widthPerItem)
+		let height = calculateCellHeight(for: product, in: widthPerItem)
 		return CGSize(width: widthPerItem - 8, height: height)
 	}
 	
-	func calculateHeight(for product: Product, in cellWidth: CGFloat) -> CGFloat {
+	func calculateCellHeight(for product: Product, in cellWidth: CGFloat) -> CGFloat {
 		let imageHeight = CGFloat(product.image.height)
 		let containerSize = product.productDescription.containerSize(in: CGSize(width: cellWidth,
 																				height: .greatestFiniteMagnitude))
