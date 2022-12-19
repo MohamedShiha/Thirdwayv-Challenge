@@ -181,6 +181,8 @@ extension ProductsCollectionVC: UICollectionViewDelegateFlowLayout {
 	}
 }
 
+// MARK: - TransitioningDelegate
+
 extension ProductsCollectionVC: UIViewControllerTransitioningDelegate {
 	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
 		guard
