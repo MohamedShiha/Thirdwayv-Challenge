@@ -9,13 +9,14 @@ import UIKit
 
 class ProductItemCell: UICollectionViewCell {
 	
-	// MARK: Variables
+	// MARK: - Variables
 	
 	static let reuseId = "ProductItem"
 	
-	// MARK: Views
+	// MARK: - Views
 	
-	let productImageView: UIImageView = UIImageView(image: nil)
+//	let productImageView: UIImageView = UIImageView(image: nil)
+	let productImageView: ImageViewLoader = ImageViewLoader(image: nil)
 	private let verticalStack: UIStackView = {
 		let vStack = UIStackView()
 		vStack.axis = .vertical
@@ -40,7 +41,7 @@ class ProductItemCell: UICollectionViewCell {
 		return label
 	}()
 	
-	// MARK: Initialization
+	// MARK: - Initialization
 	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -52,7 +53,7 @@ class ProductItemCell: UICollectionViewCell {
 		setupCell()
 	}
 	
-	// MARK: Setup
+	// MARK: - Setup
 	
 	private func setupCell() {
 		setupViews()
@@ -91,7 +92,7 @@ class ProductItemCell: UICollectionViewCell {
 	}
 	
 	func set(product: Product) {
-		productImageView.setImage(urlPath: product.image.url)
+		productImageView.loadImageWith(urlPath: product.image.url)
 		productImageView.frame.size = CGSize(width: product.image.width,
 											 height: product.image.height)
 		priceLabel.text = "\(product.price)"
