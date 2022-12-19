@@ -24,6 +24,8 @@ final class MainCoordinator: Coordinator {
 	func showProductDetails(_ product: Product) {
 		let productDetailsVC = ProductDetailsVC(product: product)
 		productDetailsVC.coordinator = self
-		navigationController.present(productDetailsVC, animated: true)
+		guard let mainVC = navigationController.viewControllers.last as? ProductsCollectionVC else { return }
+		productDetailsVC.transitioningDelegate = mainVC
+		mainVC.present(productDetailsVC, animated: true)
 	}
 }
