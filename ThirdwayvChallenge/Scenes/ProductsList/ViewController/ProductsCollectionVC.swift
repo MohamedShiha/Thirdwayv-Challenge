@@ -15,6 +15,7 @@ class ProductsCollectionVC: ViewController {
 	var coordinator: MainCoordinator?
 	let viewModel: ProductListViewModel
 	var products = [Product]()
+	let transition = PopAnimator()
 	
 	// MARK: - Views
 	
@@ -69,6 +70,7 @@ class ProductsCollectionVC: ViewController {
 	func setupViews() {
 		setupCollectionView()
 		view.addSubview(collectionView)
+		transitioningDelegate = self
 	}
 	
 	private func setupCollectionView() {
@@ -176,5 +178,34 @@ extension ProductsCollectionVC: UICollectionViewDelegateFlowLayout {
 		let containerSize = product.productDescription.containerSize(in: CGSize(width: cellWidth,
 																				height: .greatestFiniteMagnitude))
 		return imageHeight + containerSize.height + 50.0
+	}
+}
+
+extension ProductsCollectionVC: UIViewControllerTransitioningDelegate {
+	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+		guard
+			let selectedIndexPathCell = collectionView.indexPathsForSelectedItems?.first,
+			let selectedCell = collectionView.cellForItem(at: selectedIndexPathCell),
+			let selectedCellSuperview = selectedCell.superview
+		else {
+			return nil
+		}
+		
+		transition.originFrame = selectedCellSuperview.convert(selectedCell.frame, to: nil)
+		transition.originFrame = CGRect(
+			x: transition.originFrame.origin.x + 20,
+			y: transition.originFrame.origin.y + 20,
+			width: transition.originFrame.size.width - 40,
+			height: transition.originFrame.size.height - 40
+		)
+		
+		transition.direction = .present
+		
+		return transition
+	}
+	
+	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+		transition.direction = .dismiss
+		return transition
 	}
 }
