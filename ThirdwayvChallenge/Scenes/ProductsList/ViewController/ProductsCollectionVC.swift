@@ -9,18 +9,18 @@ import UIKit
 
 class ProductsCollectionVC: ViewController {
 
-	// MARK: Variables
+	// MARK: - Variables
 	
 //	weak var coordinator: MainCoordinator?
 	var coordinator: MainCoordinator?
 	let viewModel: ProductListViewModel
 	var products = [Product]()
 	
-	// MARK: Views
+	// MARK: - Views
 	
 	private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
 	
-	// MARK: Initializers
+	// MARK: - Initializers
 	
 	init(viewModel: ProductListViewModel) {
 		self.viewModel = viewModel
@@ -32,7 +32,7 @@ class ProductsCollectionVC: ViewController {
 		super.init(coder: coder)
 	}
 	
-	// MARK: Lifecycle
+	// MARK: - Lifecycle
 	
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,12 +41,30 @@ class ProductsCollectionVC: ViewController {
 		fetchData()
     }
 	
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+		NotificationCenter.default.addObserver(self,
+											   selector: #selector(collectionStatusOmChange(notification:)),
+											   name: .networkStatusDidChange,
+											   object: nil)
+	}
+	
+	@objc
+	private func collectionStatusOmChange(notification: NSNotification) {
+		fetchData()
+	}
+	
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		NotificationCenter.default.removeObserver(self)
+	}
+	
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		collectionView.collectionViewLayout.invalidateLayout()
 	}
 	
-	// MARK: Setup
+	// MARK: - Setup
 	
 	func setupViews() {
 		setupCollectionView()
@@ -62,6 +80,7 @@ class ProductsCollectionVC: ViewController {
 		collectionView.setCollectionViewLayout(layout, animated: true)
 		collectionView.dataSource = self
 		collectionView.delegate = self
+		collectionView.prefetchDataSource = self
 		collectionView.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
@@ -86,9 +105,23 @@ class ProductsCollectionVC: ViewController {
 			}
 		}
 	}
+	
+	func fetchMoreData() {
+		Task {
+			do {
+				let fetchedProducts = try await viewModel.fetchMoreProducts()
+				self.products.append(contentsOf: fetchedProducts)
+				DispatchQueue.main.async {
+					self.collectionView.reloadData()
+				}
+			} catch let error as NetworkError {
+				print(error.desciption)
+			}
+		}
+	}
 }
 
-// MARK: UICollectionViewDataSource
+// MARK: - UICollectionViewDataSource
 
 extension ProductsCollectionVC: UICollectionViewDataSource {
 	
@@ -109,7 +142,15 @@ extension ProductsCollectionVC: UICollectionViewDataSource {
 	}
 }
 
-// MARK: UICollectionViewDelegate
+// MARK: - UICollectionViewDataSource
+
+extension ProductsCollectionVC: UICollectionViewDataSourcePrefetching {
+	func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+		fetchMoreData()
+	}
+}
+
+// MARK: - UICollectionViewDelegate
 
 extension ProductsCollectionVC: UICollectionViewDelegate {
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -117,7 +158,7 @@ extension ProductsCollectionVC: UICollectionViewDelegate {
 	}
 }
 
-// MARK: FlowLayoutDelegate
+// MARK: - FlowLayoutDelegate
 
 extension ProductsCollectionVC: UICollectionViewDelegateFlowLayout {
 	
