@@ -9,11 +9,11 @@ import UIKit
 
 class ProductDetailsVC: ViewController {
 	
-	// MARK: Variables
+	// MARK: - Variables
 	
 	var coordinator: MainCoordinator?
 	
-	// MARK: Views
+	// MARK: - Views
 	
 	private let closeButton: UIButton = {
 		let button = UIButton()
@@ -30,7 +30,7 @@ class ProductDetailsVC: ViewController {
 		vStack.axis = .vertical
 		return vStack
 	}()
-	private let productImageView = UIImageView(image: nil)
+	private let productImageView = ImageViewLoader(image: nil)
 	private let priceLabel: UILabel = {
 		let label = UILabel(frame: .zero)
 		label.textColor = UIColor(displayP3Red: 35 / 255,
@@ -47,7 +47,7 @@ class ProductDetailsVC: ViewController {
 		return label
 	}()
 
-	// MARK: Initializers
+	// MARK: - Initializers
 	
 	init(product: Product) {
 		super.init(nibName: nil, bundle: nil)
@@ -65,7 +65,7 @@ class ProductDetailsVC: ViewController {
 		closeButton.layer.cornerRadius = closeButton.bounds.height / 2
 	}
 	
-	// MARK: Setup
+	// MARK: - Setup
 	
 	func setupViews() {
 		view.backgroundColor = .systemBackground
@@ -99,12 +99,12 @@ class ProductDetailsVC: ViewController {
 	}
 	
 	func set(product: Product) {
-		productImageView.setImage(urlPath: product.image.url)
+		productImageView.loadImageWith(urlPath: product.image.url)
 		priceLabel.text = String(product.price)
 		descriptionLabel.text = product.productDescription
 	}
 	
-	// MARK: Actions
+	// MARK: - Actions
 	
 	@objc
 	private func closeButtonOnTap(_ sender: UIButton) {
